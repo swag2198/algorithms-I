@@ -82,11 +82,15 @@ int main()
 	hi = hirec(n); lo = lorec(n);
 	//cout.precision(100);
 	cout<<"    "<<"hi("<<n<<") = "<<hi<<"\tlo("<<n<<") = "<<lo<<endl;
+	
 	cout<<"+++ Method 1"<<endl;
 	double *hilo = hilorec(n);
-	cout<<"    "<<"hi("<<n<<") = "<<hi<<"\tlo("<<n<<") = "<<lo<<endl;
+	// cout<<"    "<<"hi("<<n<<") = "<<hi<<"\tlo("<<n<<") = "<<lo<<endl;
+	cout<<"    "<<"hi("<<n<<") = "<<hilo[0]<<"\tlo("<<n<<") = "<<hilo[1]<<endl;
+
 	cout<<"+++ Method 2"<<endl;
 	hilo = hiloformula(n);
-	cout<<"    "<<"hi("<<n<<") = "<<hi<<"\tlo("<<n<<") = "<<lo<<endl;
+	// cout<<"    "<<"hi("<<n<<") = "<<hi<<"\tlo("<<n<<") = "<<lo<<endl;
+	cout<<"    "<<"hi("<<n<<") = "<<hilo[0]<<"\tlo("<<n<<") = "<<hilo[1]<<endl;
 	return 0;
 }
