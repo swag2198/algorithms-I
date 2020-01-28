@@ -106,6 +106,8 @@ int give_appropriate_point(vector<point> &sol, point &Q)
 
 void print_boundary(vector<boundary> &contour)
 {
+	const double minus_inf = -numeric_limits<double>::max(); //MINUS_INFINITY
+	const double inf = numeric_limits<double>::max(); //PLUS_INFINITY
 	cout<<"Printing obtained visible region ..."<<endl;
 	boundary temp;
 	point p1, p2;
@@ -114,14 +116,20 @@ void print_boundary(vector<boundary> &contour)
 		temp = contour[i];
 		p1 = temp.begin;
 		p2 = temp.end;
-		cout<<"Line\t"<<temp.lineno<<": From ("<<p1.x<<","<<p1.y<<")"<<" to ("<<p2.x<<","<<p2.y<<")"<<endl;
+		if(p1.x != minus_inf && p2.x != inf)
+			cout<<"Line\t"<<temp.lineno<<": From ("<<p1.x<<","<<p1.y<<")"<<" to ("<<p2.x<<","<<p2.y<<")"<<endl;
+		else if(p1.x == minus_inf)
+			cout<<"Line\t"<<temp.lineno<<": From MINUS_INFINITY"<<" to ("<<p2.x<<","<<p2.y<<")"<<endl;
+		else if(p2.x == inf)
+			cout<<"Line\t"<<temp.lineno<<": From ("<<p1.x<<","<<p1.y<<")"<<" to PLUS_INFINITY"<<endl;
+
 	}
 }
 
 void method1(vector<line> &lines)
 {
-	const double minus_inf = -std::numeric_limits<double>::max(); //MINUS_INFINITY
-	const double inf = std::numeric_limits<double>::max(); //PLUS_INFINITY
+	const double minus_inf = -numeric_limits<double>::max(); //MINUS_INFINITY
+	const double inf = numeric_limits<double>::max(); //PLUS_INFINITY
 	point Q, Qplus;
 	Qplus.x = inf; Qplus.y = inf;
 	Q.x = minus_inf; Q.y = 0;
@@ -240,8 +248,8 @@ typedef struct _stacknode
 
 void method2(vector<line> &lines)
 {
-	const double minus_inf = -std::numeric_limits<double>::max(); //MINUS_INFINITY
-	const double inf = std::numeric_limits<double>::max(); //PLUS_INFINITY
+	const double minus_inf = -numeric_limits<double>::max(); //MINUS_INFINITY
+	const double inf = numeric_limits<double>::max(); //PLUS_INFINITY
 	point Q, Qplus;
 	Qplus.x = inf; Qplus.y = 0;
 	Q.x = minus_inf; Q.y = 0;
@@ -254,7 +262,7 @@ void method2(vector<line> &lines)
 	temp.b1.lineno = K.index;
 	//cout<<"bfd = "<<temp.b1.lineno<<endl;
 	temp.b1.begin= Q;
-	temp.b1.end = Q;
+	temp.b1.end = Qplus;
 	
 	S.push(temp);
 	
@@ -269,43 +277,53 @@ void method2(vector<line> &lines)
 		top = S.top();
 		curQ = top.b1.begin;
 		
-		l1 = curline;
-		l2 = top.ln;
+		l1 = top.ln;
+		l2 = curline;
 		cursol = intersection_point(l1, l2);
-		cout<<"curq.x = "<<curQ.x<<endl;
-		cout<<"x, y = "<<cursol.x<<","<<cursol.y<<endl;
-		while(cursol.x < curQ.x && !S.empty())
+		// cout<<"curq.x = "<<curQ.x<<endl;
+		// cout<<"x, y = "<<cursol.x<<","<<cursol.y<<endl;
+
+		while(cursol.x < curQ.x)
 		{
-			S.pop();
-			//cout<<"Hi1"<<endl;
-			top = S.top();
-			//cout<<"Hi2"<<endl;
-			curQ = top.b1.end;
-			//cout<<"Hi3"<<endl;
-			l2 = top.ln;
-			//cout<<"Hi4"<<endl;
-			cursol = intersection_point(l1, l2);
-			//cout<<"x, y = "<<cursol.x<<","<<cursol.y<<endl;
+			if(!S.empty())
+			{
+				S.pop();
+				// cout<<"Hi1"<<endl;
+				top = S.top();
+				// cout<<"Hi2"<<endl;
+				curQ = top.b1.begin;
+				// cout<<"Hi3"<<endl;
+				l1 = top.ln;
+				// cout<<"Hi4"<<endl;
+				cursol = intersection_point(l1, l2);
+				// cout<<"x, y = "<<cursol.x<<","<<cursol.y<<endl;
+			}
 		}
 		
 		S.pop();
 		top.b1.end = cursol;
 		S.push(top);
+		// cout<<"Pushed line = "<<top.ln.index<<endl;
 		
 		temp.ln = curline;
 		temp.b1.lineno = curline.index;
 		temp.b1.begin = cursol;
 		temp.b1.end = Qplus;
 		S.push(temp);
+		// cout<<"Pushed line = "<<temp.ln.index<<endl;
 	}
 	
 	vector<boundary> contour(S.size());
-	for(int i=0; i<S.size(); i++)
+	int k = 0;
+	int n = S.size(); //don't use a fucking for loop here which loops over i < S.size()!
+	while(!S.empty())
 	{
 		top = S.top();
 		S.pop();
-		contour[S.size()-1-i] = top.b1;
+		contour[n-1-k] = top.b1;
+		k++;
 	}
+	// cout<<"Hey ya"<<endl;
 	print_boundary(contour);
 }
 
@@ -329,12 +347,9 @@ int main()
 	
 	cout<<endl<<"Sorting lines ..."<<endl;
 	mergesort(lines, 0, lines.size()-1);
-	
 	printlines(lines);
 	
 	cout<<endl<<"+++Method 2"<<endl;
 	method2(lines);
-	
-	
 	return 0;
 }
