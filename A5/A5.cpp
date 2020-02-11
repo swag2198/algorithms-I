@@ -17,14 +17,15 @@ double e(double *p, double* s, double *t, int i, int mi)
 
 double optimalbuy1(int n, int C, int *c, double *s, double *t, double *p)
 {
-	double **T, **mc;
+	double **T;
+	int **mc;
 	T = new double*[n];
-	mc = new double*[n];
+	mc = new int*[n];
 	double *count = new double[n];
 	for(int i=0; i<n; i++)
 	{
 		T[i] = new double[C+1];
-		mc[i] = new double[C+1];
+		mc[i] = new int[C+1];
 		count[i] = 0;
 	}
 	
@@ -34,7 +35,7 @@ double optimalbuy1(int n, int C, int *c, double *s, double *t, double *p)
 	for(int j=0; j<=C; j++)
 	{
 		
-		if(j < c[0] ||j == 0)
+		if(j < c[0] || j == 0)
 			T[0][j] = minus_inf;
 		else
 		{
@@ -42,16 +43,6 @@ double optimalbuy1(int n, int C, int *c, double *s, double *t, double *p)
 			double cost = e(p,s,t,0,m);
 			T[0][j] = cost;
 			mc[0][j] = m;
-			count[0] = m;
-			/*if(cost > curmax)
-			{
-				T[0][j] = cost;
-				count[0] = m;
-				curmax = cost;
-				cout<<"Curmax cost of 0 = "<<curmax<<endl;
-			}
-			else
-				T[0][j] = curmax;*/
 		}
 	}
 	
@@ -59,18 +50,14 @@ double optimalbuy1(int n, int C, int *c, double *s, double *t, double *p)
 	{
 		for(int j=0; j<=C; j++)
 		{
-			//cout<<"Dealing with i = "<<i<<"j = "<<j<<endl;
 			if(j == 0 || j < c[i])
 				T[i][j] = minus_inf;
 			else
 			{
 				m = j / c[i];
-				//cout<<"mmax = "<<m;
 				curmax = minus_inf;
-				//cout<<"mmax = "<<m;
 				for(mi = 1; mi <= m; mi++)
 				{
-					//cout<<"Processing mi = "<<mi<<endl;
 					if(j - mi*c[i] < 0)
 						continue;
 					curp = e(p,s,t,i,mi) + T[i-1][j-mi*c[i]];
@@ -78,74 +65,94 @@ double optimalbuy1(int n, int C, int *c, double *s, double *t, double *p)
 					{
 						T[i][j] = curp;
 						mc[i][j] = mi;
-						if(i == 1)
-						{
-							mc[i-1][j] = 
-						}
-						count[i] = mi;
 						curmax = curp;
 					}
 				}
 			}
 		}
 	}
-	curmax = minus_inf;
-	count[n-1] = mc[n-1][C];
-	double prof = T[n-1][C], pe;
-	int mmax;
-	for(int i=n-1; i>0; i--)
+	int maxind, curC;
+	curC = C;
+	for(int i=n-1; i>=0; i--)
 	{
-		
+		if(i == 0)
+		{
+			count[i] = curC / c[i];
+		}
+		else
+		{
+			curmax = minus_inf;
+			m = curC / c[i];
+			for(int mi = 1; mi <= m; mi++)
+			{
+				curp = T[i-1][curC - mi*c[i]] + e(p,s,t,i,mi);
+				if(curp > curmax)
+				{
+					curmax = curp;
+					maxind = mi;
+				}
+			}
+			count[i] = maxind;
+			curC -= maxind * c[i];
+		}
 	}
+
+	/*curmax = minus_inf;
+	count[n-1] = mc[n-1][C];
+	int ic = count[n-1], iC = C;
+	for(int i=n-2; i>=0; i--)
+	{
+		count[i] = mc[i][iC - ic*c[i+1]];
+		// cout<<"count "<<i<<" = "<<count[i]<<endl;
+		iC = iC - ic*c[i+1];
+		ic = count[i];
+		// cout<<"iC = "<<iC<<endl;
+	}*/
 	
-	int total_b = 0;
+	int total_buy = 0;
 	for(int i=0; i<n; i++)
 	{
-		cout<<"   Machine "<<i<<":\t"<<count[i]<<" copies, cost =\t"<<count[i] * c[i]<<endl;
-		total_b += count[i] * c[i];
+		cout<<"    Machine "<<i<<":\t"<<count[i]<<" copies, cost =\t"<<count[i] * c[i]<<endl;
+		total_buy += count[i] * c[i];
 	}
-	cout<<"--- Total Buying Cost = "<<total_b<<endl;
+	cout<<"--- Total Buying Cost = "<<total_buy<<endl;
 	cout<<"--- Expected Total Profit = "<<T[n-1][C]<<endl;
 	
 }
 
-double optimalbuy2(int n, int C, int *c, double *s, double *t, double *r, double *p, double *q)
+void optimalbuy2(int n, int C, int *c, double *s, double *t, double *r, double *p, double *q)
 {
-	double **T, **mc;
+	double **T;
+	int **mc, **r1;
 	T = new double*[n];
-	mc = new double*[n];
-	double *count = new double[n];
+	mc = new int*[n];
+	r1 = new int*[n];
+	int *count = new int[n];
+	int *isrep = new int[n];
 	for(int i=0; i<n; i++)
 	{
 		T[i] = new double[C+1];
-		mc[i] = new double[C+1];
+		mc[i] = new int[C+1];
+		r1[i] = new int[C+1];
 		count[i] = 0;
 	}
 	
 	
 	int m, mi;
-	double curmax = minus_inf, curp;
+	double curmax = minus_inf, curp, curp2, pf, pfr;
 	for(int j=0; j<=C; j++)
 	{
 		
-		if(j < c[0] ||j == 0)
+		if(j < c[0] || j == 0)
 			T[0][j] = minus_inf;
 		else
 		{
 			m = j / c[0];
-			double cost = e(p,s,t,0,m);
-			T[0][j] = cost;
+			pf = e(p,s,t,0,m);
+			pfr = e(q,s,t,0,m) - m*r[0];
+			T[0][j] = max(pf, pfr);
 			mc[0][j] = m;
-			count[0] = m;
-			/*if(cost > curmax)
-			{
-				T[0][j] = cost;
-				count[0] = m;
-				curmax = cost;
-				cout<<"Curmax cost of 0 = "<<curmax<<endl;
-			}
-			else
-				T[0][j] = curmax;*/
+			r1[0][j] = (pf > pfr) ? 0 : 1;
 		}
 	}
 	
@@ -153,45 +160,103 @@ double optimalbuy2(int n, int C, int *c, double *s, double *t, double *r, double
 	{
 		for(int j=0; j<=C; j++)
 		{
-			//cout<<"Dealing with i = "<<i<<"j = "<<j<<endl;
 			if(j == 0 || j < c[i])
 				T[i][j] = minus_inf;
 			else
 			{
 				m = j / c[i];
-				//cout<<"mmax = "<<m;
 				curmax = minus_inf;
-				//cout<<"mmax = "<<m;
 				for(mi = 1; mi <= m; mi++)
 				{
-					//cout<<"Processing mi = "<<mi<<endl;
 					if(j - mi*c[i] < 0)
 						continue;
 					curp = e(p,s,t,i,mi) + T[i-1][j-mi*c[i]];
-					if(curp > curmax)
+					curp2 = e(q,s,t,i,mi) + T[i-1][j-mi*c[i]] - mi*r[i];
+					if(curp > curmax && curp > curp2)
 					{
 						T[i][j] = curp;
+						r1[i][j] = 0;
 						mc[i][j] = mi;
-						count[i] = mi;
 						curmax = curp;
+					}
+					else if(curp2 > curmax && curp2 > curp)
+					{
+						T[i][j] = curp2;
+						r1[i][j] = 1;
+						mc[i][j] = mi;
+						curmax = curp2;
 					}
 				}
 			}
 		}
 	}
-	curmax = minus_inf;
-	double prof = T[n-1][C], pe;
+	int maxind, curC;
+	curC = C;
+	for(int i=n-1; i>=0; i--)
+	{
+		if(i == 0)
+		{
+			count[i] = curC / c[i];
+		}
+		else
+		{
+			curmax = minus_inf;
+			m = curC / c[i];
+			for(int mi = 1; mi <= m; mi++)
+			{
+				curp = T[i-1][curC - mi*c[i]] + e(p,s,t,i,mi);
+				curp2 = e(q,s,t,i,mi) + T[i-1][curC - mi*c[i]] - mi*r[i];
+				if(curp > curmax && curp > curp2)
+				{
+					curmax = curp;
+					maxind = mi;
+					isrep[i] = 0;
+				}
+				else if(curp2 > curmax && curp2 > curp)
+				{
+					curmax = curp2;
+					maxind = mi;
+					isrep[i] = 1;
+				}
+			}
+			count[i] = maxind;
+			curC -= maxind * c[i];
+		}
+	}
+
+	/*curmax = minus_inf;
+	count[n-1] = mc[n-1][C];
+	int ic = count[n-1], iC = C;
+	for(int i=n-2; i>=0; i--)
+	{
+		count[i] = mc[i][iC - ic*c[i+1]];
+		// cout<<"count "<<i<<" = "<<count[i]<<endl;
+		iC = iC - ic*c[i+1];
+		ic = count[i];
+		// cout<<"iC = "<<iC<<endl;
+	}*/
 	
-	int total_b = 0;
+	int total_buy = 0;
 	for(int i=0; i<n; i++)
 	{
-		cout<<"   Machine "<<i<<":\t"<<count[i]<<" copies, cost =\t"<<count[i] * c[i]<<endl;
-		total_b += count[i] * c[i];
+		if(isrep[i] == 0)
+		{
+			cout<<"    Machine "<<i<<":\t"<<count[i]<<" copies, cost =    "<<count[i] * c[i]<<"    [Maint not Needed]"<<endl;
+			total_buy += count[i] * c[i];
+		}
+		else
+		{
+			cout<<"    Machine "<<i<<":\t"<<count[i]<<" copies, cost =    "<<count[i] * c[i]<<"    [Maint. Needed]"<<endl;
+			total_buy += count[i] * c[i];
+		}
+
+		
+
 	}
-	cout<<"--- Total Buying Cost = "<<total_b<<endl;
+	cout<<"--- Total Buying Cost = "<<total_buy<<endl;
 	cout<<"--- Expected Total Profit = "<<T[n-1][C]<<endl;
-	
 }
+
 
 int main()
 {
@@ -231,6 +296,9 @@ int main()
 	
 	cout<<"+++ Part1: Best Buying Option"<<endl;
 	optimalbuy1(n,C,c,s,t,p);
+
+	cout<<"+++ Part2: Best Buying Option"<<endl;
+	optimalbuy2(n,C,c,s,t,r,p,q);
 	
 	return 0;
 }
