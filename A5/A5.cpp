@@ -123,17 +123,12 @@ double optimalbuy1(int n, int C, int *c, double *s, double *t, double *p)
 void optimalbuy2(int n, int C, int *c, double *s, double *t, double *r, double *p, double *q)
 {
 	double **T;
-	int **mc, **r1;
 	T = new double*[n];
-	mc = new int*[n];
-	r1 = new int*[n];
 	int *count = new int[n];
 	int *isrep = new int[n];
 	for(int i=0; i<n; i++)
 	{
 		T[i] = new double[C+1];
-		mc[i] = new int[C+1];
-		r1[i] = new int[C+1];
 		count[i] = 0;
 	}
 	
@@ -151,8 +146,6 @@ void optimalbuy2(int n, int C, int *c, double *s, double *t, double *r, double *
 			pf = e(p,s,t,0,m);
 			pfr = e(q,s,t,0,m) - m*r[0];
 			T[0][j] = max(pf, pfr);
-			mc[0][j] = m;
-			r1[0][j] = (pf > pfr) ? 0 : 1;
 		}
 	}
 	
@@ -175,15 +168,11 @@ void optimalbuy2(int n, int C, int *c, double *s, double *t, double *r, double *
 					if(curp > curmax && curp > curp2)
 					{
 						T[i][j] = curp;
-						r1[i][j] = 0;
-						mc[i][j] = mi;
 						curmax = curp;
 					}
 					else if(curp2 > curmax && curp2 > curp)
 					{
 						T[i][j] = curp2;
-						r1[i][j] = 1;
-						mc[i][j] = mi;
 						curmax = curp2;
 					}
 				}
@@ -294,10 +283,10 @@ int main()
 	for(int i=0; i<n; i++)
 		cin>>q[i];
 	
-	cout<<"+++ Part1: Best Buying Option"<<endl;
+	cout<<endl<<"+++ Part1: Best Buying Option"<<endl;
 	optimalbuy1(n,C,c,s,t,p);
 
-	cout<<"+++ Part2: Best Buying Option"<<endl;
+	cout<<endl<<"+++ Part2: Best Buying Option"<<endl;
 	optimalbuy2(n,C,c,s,t,r,p,q);
 	
 	return 0;
