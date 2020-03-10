@@ -44,10 +44,7 @@ void findallhelper(vector<vector<int> > &seq, vector<int> &AL, vector<int> &AR, 
 {
 	if(B.size() == n-1)
 	{
-		//for(int i=0; i<n-1; i++)
-			//cout<<B[i]<<" ";
-		//cout<<endl;
-		int c0, c1;
+		int c0 = 0, c1 = 0; //I forgot to initialise them earlier!
 		for(int i=0; i<n-1; i++)
 		{
 			if(B[i] == 0)
@@ -67,12 +64,10 @@ void findallhelper(vector<vector<int> > &seq, vector<int> &AL, vector<int> &AR, 
 				else
 					vec[i+1] = AR[ri++];
 			}
-			for(int i=0; i<n; i++)
-				cout<<vec[i]<<" ";
-			cout<<endl;
-			//cout<<"pushed vec bef"<<endl;
+			// for(int i=0; i<n; i++)
+			// 	cout<<vec[i]<<" ";
+			// cout<<endl;
 			seq.push_back(vec);
-			//cout<<"pushed vec"<<endl;
 		}
 		return;
 	}
@@ -84,9 +79,9 @@ void findallhelper(vector<vector<int> > &seq, vector<int> &AL, vector<int> &AR, 
 
 vector<vector<int> > findallseq(vector<int> A, int n)
 {
+	vector<vector<int> > seq;
 	if(n <= 2)
-	{
-		vector<vector<int> > seq;
+	{	
 		seq.push_back(A);
 		return seq;
 	}
@@ -109,7 +104,6 @@ vector<vector<int> > findallseq(vector<int> A, int n)
 	int l, r;
 	l = AL.size();
 	r = AR.size();
-	vector<vector<int> > seq;
 	
 	vector<int> B;
 	for(int i=0; i<seql.size(); i++)
@@ -267,7 +261,7 @@ int main()
 	cout<<"+++ All sequences"<<endl;
 	for(int i=seq.size()-1; i>=0; i--)
 	{
-		cout<<"Sequence "<<seq.size()-i<<"\t:";
+		cout<<"Sequence "<<seq.size()-i<<"\t: ";
 		printvec(seq[i]);
 	}
 	cout<<"+++ generated seqs = "<<seq.size()<<endl<<endl;
