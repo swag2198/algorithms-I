@@ -16,6 +16,10 @@ the *cycle*!
 
 - An interesting point to note here is that DFS traversal may not identify all possible cycles in graph if the cycles share 
 common paths. Consider the graph in the shape of `8` in 7- segment display. It has 3 cycles (The big outer one and two inner 
-loops). However, any DFS traversal will identify 2 of them!
+loops). However, any DFS traversal will identify 2 of them! That is why based on the sequence of neighbors in the adjacency 
+lists of nodes, we may get different cycles. However, the no. of cycles we get should remain the same. Check the FAQ txt file
+to see what Prof. Abhijit Das has said about it.
+
+
 
 > Graphs and their properties are really surprising!
