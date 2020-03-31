@@ -1,0 +1,74 @@
+====================================================================================================
+Q: My cycles are not same as the samples provided.
+
+A: That is very possible because of your different ordering of vertices in adjacency lists. Your
+   cycles may fail to match the cycles given in samples even after cyclic permutations and writing
+   the cycles in the opposite directions.
+
+   My hunch suggests that you should get exactly the same number of cycles as in the samples.
+
+   Look at this graph:
+
+   a --- b
+   |     |
+   c --- d
+   |     |
+   e --- f
+
+   This graph has three cycles. But any DFS will reveal only two. You work with different visiting
+   orders, and see yourself. It is possible that only the smaller (length-four) cycles are revealed.
+   It is also possible that the large cycle (length six) and a small cycle is revealed by DFS.
+   Given any two cycles, the third one can be derived (it uses two backward/forward edges, so your
+   DFS missed it).
+====================================================================================================
+Q: Do I need to keep the adjacency lists sorted?
+
+A: No.
+====================================================================================================
+Q: Can we use vectors or lists from STL?
+
+A: Yes.
+====================================================================================================
+Q: Can the graphs be assumed to be connected?
+
+A: Neither G nor GR nor GB nor GRB is needed to be connected. That is why you use multi-DFS, and
+   talk about DFS forests (not trees).
+====================================================================================================
+Q: What is vertex number?
+
+A: These are the numbers like 2,4,5,6,11,13,15 (see the red graph) which are not the same as the
+   indices 0,1,2,3,4,5,6.
+====================================================================================================
+Q: Why is it necessary to keep track of levels in DFS?
+
+A: You need to distinguish parent from other ancestors. That's why people use levels in DFS. Here,
+   you maintain parent information, so maintaining levels is apparently not necessary. A visited
+   neighbor which is not the parent of the current node seems to give a back edge. But note that a
+   visited neighbor which is not the parent may very well imply a FORWARD edge. So maintain levels.
+
+   More explanation requested: Look at the blue subgraph in the assignment. You start DFS at 7 and
+   visit 10, 9, 12, 3, 0. Then you backtrack. The edge (3,10) is a back edge when you come to 3,
+   and a forward edge when you come to 10.
+
+   When the DFS traversal first reaches 10, the vertex 3 is unvisited, but the traversal chooses
+   vertex 9 to move forward. Eventually, it reaches 3 and sees 10 visited (before or after exploring
+   0). So the edge (3,10) is a backward edge to vertex 3. After you track back and come again to 10
+   in order to explore further, you discover 3 as a visited neighbor. So to the vertex 10, the same
+   edge (10,3) is a forward edge.
+====================================================================================================
+Q: What is multi-DFS?
+
+A: You start DFS from a node, and visit all vertices that can be visited. If there are still some
+   vertices unvisited, pick any such vertex, and run a second DFS from that vertex. When that ends,
+   check if there are any more unvisited vertices. If so, start a third DFS. Repeat until all
+   vertices are marked visited. This is multi-DFS.
+====================================================================================================
+Q: How to print a cycle?
+
+A: Let (u,v) be a backward edge. You know parent(u), parent(parent(u)), and so on. Keep on printing
+   u, its parent, its grandparent, ... until you reach v.
+
+   If (u,v) is a forward edge, you cannot reach v from u by following parent information. This is
+   the reason why it is necessary to maintain levels to distinguish between forward and backward
+   edges.
+====================================================================================================
