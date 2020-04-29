@@ -189,22 +189,6 @@ void dpsquare(int **F, int m, int n)
 
 void dprectangle(int **F, int m, int n)
 {
-	/*
-	K[i][j] = length of longest vertical alternating 0-1 sequence
-			  starting from (i, j)
-	Hence, all cells in the last row will have K[i][j] = 1.
-
-	L[i][j] = length of longest horizontal alternating 0-1 sequence
-			  starting from (i, j)
-	Hence all cells in the last column will have L[i][j] = 1.
-
-	T[i][j] = area of the maximal chessboard rectangle whose top-left
-			  corner is at (i, j)
-	Note that T[i][j] can only be initialised for the cell (m-1, n-1),
-	however, that is unnecessary because no DP is involved in building
-	this table! Infact, the table is itself unnecessary if only maximum
-	is needed.
-	*/
 	int **K = new int*[m];
 	for(int i=0; i<m; i++)
 		K[i] = new int[n];
