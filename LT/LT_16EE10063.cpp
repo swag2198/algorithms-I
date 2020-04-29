@@ -1,9 +1,4 @@
-/* Swagatam Haldar
-   16EE10063
-   Algo Lab Test
-   28/4/20
-*/
-
+/* Swagatam Haldar */
 #include <iostream>
 
 using namespace std;
@@ -17,18 +12,15 @@ void print_sq(int **F, int m, int n, int s, int t, int k, int l)
 		{
 			if(i >= s && i < s+k && j >= t && j < t+l)
 			{
-				// if(j >= t && j < t+l)
-				// {
-					if(F[i][j] == 0)
-						cout<<" W ";
-					else
-						cout<<" B ";
-				// }
+				if(F[i][j] == 0)
+					cout<<" W ";
+				else
+					cout<<" B ";
 			}
 			else
 				cout<<" . ";
 		}
-		cout<<endl<<endl;
+		cout<<endl;
 	}
 }
 
@@ -39,13 +31,11 @@ int ischessboard(int **F, int i, int j, int m1, int n1, int k, int l)
 	int corner_color = F[i][j];
 	int required;
 	required = corner_color;
-	// cout<<"corner_color = "<<F[i][j]<<endl;
 
 	for(int m=i; m<i+k; m++)
 	{
 		for(int n=j; n<j+l; n++)
 		{
-			// cout<<"m = "<<m<<" n = "<<n<<"cc = "<<required<<endl;
 			if(F[m][n] != required)
 				return 0;
 			required = 1 - required;
@@ -91,8 +81,6 @@ void essquare(int **F, int m, int n)
 		}
 	}
 
-	// cout<<"maxsq = "<<maxsq<<endl;
-	// cout<<"i = "<<maxi<<" j = "<<maxj<<endl;
 	print_sq(F, m, n, maxi, maxj, maxsq, maxsq);
 	cout<<"    Area = "<<maxsq*maxsq<<endl;
 
@@ -193,6 +181,7 @@ void dpsquare(int **F, int m, int n)
 	}
 	print_sq(F, m, n, maxi, maxj, maxsq, maxsq);
 	cout<<"    Area = "<<maxsq*maxsq<<endl;
+
 	for(int i=0; i<m; i++)
 		delete[] T[i];
 	delete[] T;
@@ -200,6 +189,22 @@ void dpsquare(int **F, int m, int n)
 
 void dprectangle(int **F, int m, int n)
 {
+	/*
+	K[i][j] = length of longest vertical alternating 0-1 sequence
+			  starting from (i, j)
+	Hence, all cells in the last row will have K[i][j] = 1.
+
+	L[i][j] = length of longest horizontal alternating 0-1 sequence
+			  starting from (i, j)
+	Hence all cells in the last column will have L[i][j] = 1.
+
+	T[i][j] = area of the maximal chessboard rectangle whose top-left
+			  corner is at (i, j)
+	Note that T[i][j] can only be initialised for the cell (m-1, n-1),
+	however, that is unnecessary because no DP is involved in building
+	this table! Infact, the table is itself unnecessary if only maximum
+	is needed.
+	*/
 	int **K = new int*[m];
 	for(int i=0; i<m; i++)
 		K[i] = new int[n];
@@ -212,57 +217,76 @@ void dprectangle(int **F, int m, int n)
 	for(int i=0; i<m; i++)
 		T[i] = new int[n];
 
-	K[m-1][n-1] = 1;
-	L[m-1][n-1] = 1;
+	/* Initialisation of the matrices */
 	T[m-1][n-1] = 1;
-
-	for(int i=m-2; i>=0; i--)
-	{
-		if(F[i][n-1] != F[i+1][n-1])
-			K[i][n-1] = 1 + K[i+1][n-1];
-		else
-			K[i][n-1] = 1;
-		L[i][n-1] = 1;
-		T[i][n-1] = K[i][n-1] * L[i][n-1];
-	}
-
-	for(int j=n-2; j>=0; j--)
-	{
-		if(F[m-1][j] != F[m-1][j+1])
-			L[m-1][j] = 1 + L[m-1][j+1];
-		else
-			L[m-1][j] = 1;
+	for(int j=0; j<n; j++)
 		K[m-1][j] = 1;
+	for(int i=0; i<m; i++)
+		L[i][n-1] = 1;
 
-		T[m-1][j] = K[m-1][j] * L[m-1][j];
+	/* Dynamic Programming to fill K (columnwise bottom-up) */
+	for(int j=n-1; j>=0; j--)
+	{
+		for(int i=m-2; i>=0; i--)
+		{
+			if(F[i][j] != F[i+1][j])
+				K[i][j] = 1 + K[i+1][j];
+			else
+				K[i][j] = 1;
+		}
 	}
 
-	int maxsq = -1, maxi, maxj;
-	int k1, l1, k2, l2;
-
-	for(int i=m-2; i>=0; i--)
+	/*Dynamic Programming to fill L (rowwise bottom-up)  */
+	for(int i=m-1; i>=0; i--)
 	{
 		for(int j=n-2; j>=0; j--)
 		{
-			if(F[i][j] == F[i+1][j] || F[i][j] == F[i][j+1])
-			{
-				K[i][j] = 1;
-				L[i][j] = 1;
-				T[i][j] = 1;
-			}
+			if(F[i][j] != F[i][j+1])
+				L[i][j] = 1 + L[i][j+1];
 			else
+				L[i][j] = 1;
+		}
+	}
+
+	int maxrec = -1, maxi, maxj, maxk, k1, l;
+
+	/* Filling up of T[i][j], not DP! */
+	for(int i=0; i<m; i++)
+	{
+		for(int j=0; j<n; j++)
+		{
+			k1 = K[i][j];
+			l = L[i][j];
+			/* Consider all possible chessboard heights starting at (i, j) */
+			for(int k=1; k<=k1; k++)
 			{
-				k1 = K[i+1][j];
-				l1 = L[i+1][j];
-				k2 = K[i][j+1];
-				l2 = L[i][j+1];
-
-
+				/* Current minimum breadth of the chessboard */
+				l = min(l, L[i+k-1][j]);
+				if(k*l >= maxrec)
+				{
+					maxrec = k*l;
+					maxi = i;
+					maxj = j;
+					maxk = k;
+					T[i][j] = k*l;
+				}
 			}
 		}
 	}
 
+	print_sq(F, m, n, maxi, maxj, maxk, maxrec/maxk);
+	cout<<"    Area = "<<maxrec<<endl;
 
+
+	for(int i=0; i<m; i++)
+	{
+		delete[] T[i];
+		delete[] K[i];
+		delete[] L[i];
+	}
+	delete[] T;
+	delete[] K;
+	delete[] L;
 }
 
 int main()
@@ -280,7 +304,6 @@ int main()
 
 	int N = max(m, n);
 
-	// cout<<"ischessboard = "<<ischessboard(F,0,0,m,n,m)<<endl;
 	cout<<endl<<"+++ Exhaustive search: Square"<<endl;
 	essquare(F, m, n);
 
