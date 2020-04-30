@@ -9,7 +9,7 @@ A brief description of the contents of the folders is provided below. The links 
 | A1 | [Running time of algorithms](https://github.com/swag2198/DSA/tree/master/A1)  | A recurrence relation based question and an array problem. |
 | A2 | [Recursion](https://github.com/swag2198/DSA/tree/master/A2) | Recursive enumeration of all possible ways of writing a number as an arithmetic expression using only `1`, `+`, and `x` (brackets allowed). |
 | A3 | [Divide-and-Conquer](https://github.com/swag2198/DSA/tree/master/A3) | Implementation of a geometric algorithm for finding the region of visibility from y-infinity given a set of straight lines on a plane. |
-| A4 | [Greedy](https://github.com/swag2198/DSA/tree/master/A4) | Finding minimum no. of ways of reducing a number to 1 using only decrement and divide by 2 operations. |
+| A4 | [Greedy](https://github.com/swag2198/DSA/tree/master/A4) | Finding minimum no. of steps of reducing a number to 1 using only decrement and divide by 2 operations. |
 | A5 | [Dynamic programming](https://github.com/swag2198/DSA/tree/master/A5) | A knapsack like pseudo polynomial time combinatorial optimization problem. |
 | A6 | [Binary tree](https://github.com/swag2198/DSA/tree/master/A6) | Converting a binary tree into a binary search tree using rotation, childswap, bubble sort and rebalance operations. |
 | A7 | [Binary search tree](https://github.com/swag2198/DSA/tree/master/A7) | Finding all possible permutations of an array that generate the *same* binary search tree. |
